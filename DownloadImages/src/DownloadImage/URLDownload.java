@@ -6,6 +6,26 @@ import java.net.URL;
 
 public class URLDownload {
 
+
+
+    public static Runnable download(String url, String PathImages, String SavePath, int min) {
+        String nameImage = "";
+
+        if (!PathImages.matches(".*.(?:jpg|svg|gif|png)$")) {
+            nameImage = String.valueOf ((int) (Math.random() * 100000000)) + String.valueOf((int) (Math.random() * 100000000)) + ".png";
+            if (PathImages.startsWith("/")) {
+                URLDownload.downloadFile(url + PathImages, SavePath + nameImage, min);
+                if (PathImages.startsWith("//")) {
+                    URLDownload.downloadFile("https:" + PathImages, SavePath + nameImage, min);
+                    if (PathImages.startsWith("http")) {
+                        URLDownload.downloadFile(PathImages, SavePath + nameImage, min);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     // Сохраняет картинку, размером больше min КБ, по указанному url, в файл SavePath
     public static Runnable downloadFile(String url, String SavePath, int min) {
 
@@ -25,10 +45,9 @@ public class URLDownload {
             InputStream in = new BufferedInputStream(conn.getInputStream());
             BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(SavePath));
 
-            byte buff[] = new byte[1];
-
+            byte buff[] = new byte[4096];
             while (in.read(buff) > 0) {
-                out.write(buff, 0, 1);
+                out.write(buff, 0, 4096);
             }
 
 
@@ -42,24 +61,6 @@ public class URLDownload {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
-        }
-        return null;
-    }
-
-    public static Runnable download(String url, String PathImages, String SavePath, int min) {
-        String nameImage = "";
-
-        if (!PathImages.matches(".*.(?:jpg|svg|gif|png)$")) {
-            nameImage = String.valueOf ((int) (Math.random() * 100000000)) + String.valueOf((int) (Math.random() * 100000000)) + ".png";
-            if (PathImages.startsWith("/")) {
-                URLDownload.downloadFile(url + PathImages, SavePath + nameImage, min);
-                if (PathImages.startsWith("//")) {
-                    URLDownload.downloadFile("https:" + PathImages, SavePath + nameImage, min);
-                    if (PathImages.startsWith("http")) {
-                        URLDownload.downloadFile(PathImages, SavePath + nameImage, min);
-                    }
-                }
-            }
         }
         return null;
     }
