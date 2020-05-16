@@ -1,11 +1,10 @@
 package DownloadImage;
-import org.jsoup.Jsoup;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashSet;
@@ -30,7 +29,7 @@ public class Main {
         long start_time = System.currentTimeMillis();
 
         try {
-            String URL = loadParametrs();
+            String URL = loadParameters();
 
             System.out.println("Загружаем картинки с сайта: " + URL);
             getPathImages(URL);
@@ -46,17 +45,24 @@ public class Main {
     }
 
     //Функция загрузки параметров
-    static String loadParametrs() throws IOException {
-        FileInputStream file= new FileInputStream("src\\DownloadImage\\load_parametres.properties");
-        Properties properties = new Properties();
+    private static String loadParameters() {
+        try {
+            FileInputStream file = new FileInputStream("src\\DownloadImage\\load_parametres.properties");
+            Properties properties = new Properties();
 
-        properties.load(file);
+            properties.load(file);
 
-        SavePath = properties.getProperty("SavePath");
-        min = Integer.parseInt(properties.getProperty("minKB"));
+            SavePath = properties.getProperty("SavePath");
+            min = Integer.parseInt(properties.getProperty("minKB"));
 
-        file.close();
-        return properties.getProperty("URL");
+            file.close();
+
+            return properties.getProperty("URL");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     //Функция добавления метода загруки картинки с заданным url в поток
@@ -69,10 +75,10 @@ public class Main {
 
                 if (SetURL.add(PathImages)) {
                     String ItogPath = PathImages;
-
-                    executor.execute( () -> {
+                    //System.out.println('\n' + URL + " " + ItogPath + '\n');
+                    executor.execute(() -> {
                         URLDownload.download(URL, ItogPath, SavePath, min);
-                     });
+                    });
                 }
 
             }
@@ -89,12 +95,15 @@ public class Main {
 
             PathImages = elem.attr("href");
 
-            if ("//".startsWith(PathImages)) {
+            if (PathImages.startsWith("//")) {
                 getPathImages("https://" + PathImages.substring(2));
-            } else if ("/".startsWith(PathImages)) {
-                getPathImages("https://" + new URL(URL).getHost() + PathImages);
+
             } else {
-                getPathImages(PathImages);
+                if (PathImages.startsWith("/")) {
+                    getPathImages("https://" + new URL(URL).getHost() + PathImages);
+                } else {
+                    getPathImages(PathImages);
+                }
             }
         }
     }
