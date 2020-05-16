@@ -29,7 +29,6 @@ public class URLDownload {
 
             while (in.read(buff) > 0) {
                 out.write(buff, 0, 1);
-                //in.read(buff);
             }
 
 
